@@ -1,11 +1,14 @@
 #!/bin/sh
-set -v
+#set -v
 
+# Create a target namespace for the installs
 kubectl create ns kubeless
 
-# Install Kubeless
-# Avoid version v0.3.0 due to [Zookeeper error](https://github.com/kubeless/kubeless/issues/480).
-kubectl create -f https://github.com/kubeless/kubeless/releases/download/v0.2.4/kubeless-v0.2.4.yaml
+# Install Kubeless engine
+kubectl create -f https://github.com/kubeless/kubeless/releases/download/v0.6.0/kubeless-non-rbac-v0.6.0.yaml -n kubeless
 
-# Install the UI for Kubeless
-kubectl create -f https://raw.githubusercontent.com/kubeless/kubeless-ui/master/k8s.yaml
+# Install Kubeless dashboard
+kubectl create -f https://raw.githubusercontent.com/kubeless/kubeless-ui/master/k8s.yaml -n kubeless
+
+# Roadmap: 0.4.0 version requires a PV to be defined for the trigger examples
+# to work. There is a note about this in the quickstart guide.

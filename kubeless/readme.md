@@ -1,107 +1,134 @@
-# Kubeless with Kubernetes on Minikube #
+# Kubeless with Kubernetes on Minikube
 
-These best and latest instructions are in the readme for the Kubeless GitHub project  
-[here](https://github.com/kubeless/kubeless).
+These best and latest instructions are adopted from the readme in the Kubeless GitHub project [here](https://github.com/kubeless/kubeless).
 
-### How do I get set up? ###
+## Setting up Kubeless on Kubernetes
 
-- Clone this project from GitHub
-- Install [Minikube](https://kubernetes.io/docs/getting-started-guides/minikube/) 
-- Install Kubectl and verify `kubectl version` runs correctly
-- Start Minkube with `minkube start`
+### Kubernetes setup
 
-### Install Kubeless ###
+1. Install [Minikube](https://kubernetes.io/docs/getting-started-guides/minikube/) (or any other Kubernetes cluster)
+1. Install [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/) command line tool for Kubernetes
+1. Install [Helm](https://docs.helm.sh/using_helm/), a package manager for Kubernetes based applications
+1. Start Minikube: `minikube start --kubernetes-version v1.9.4 --cpus 4 --memory 8000 --disk-size 80g -p minikube-kubeless`
+1. Use profile specified above: `minikube profile minikube-kubeless`
+1. Verify `minikube status` and `kubectl version` run correctly
+1. Initialize Helm with: `helm init`
 
-Note: Avoid version v0.3.0 due to [Zookeeper error](https://github.com/kubeless/kubeless/issues/480). These instructions 
-were tested with v0.2.4.
+### Kubeless setup
 
-Install the Kubeless CLI tool. The instructions are found in the 
-"Assets" [here](https://github.com/kubeless/kubeless/releases).
+Install the Kubeless CLI tool. The instructions are found in the "Assets" [here](https://github.com/kubeless/kubeless/releases).
 
-Side note: Wouldn't it be nice if there was a helm chart for these serverless projects. e.g. `helm search`
+The following script will create a namespace for Kubeless and deploy Kubeless and its handy dashboard to the namespace on your Minikube cluster:
 
-Create a namespace for kubeless
+``` sh
+./deploy.sh
+```
 
-`kubectl create ns kubeless`
+Explore deployment in dashboard
 
-Deploy Kubeless to the kubeless namespace on your Minikube cluster
-
-`
-kubectl create -f https://github.com/kubeless/kubeless/releases/download/v0.2.4/kubeless-v0.2.4.yaml
-`
-
-Explore deployment in dashboard/kubectl
-
-`minikube dashboard`
-
-Notice in the namespace the deployments will take a few minutes before they report as ready.
-
-Kubeless has a handy dashboard too. Enable it with this command.
-
-`
-kubectl create -f https://raw.githubusercontent.com/kubeless/kubeless-ui/master/k8s.yaml
-`
+``` sh
+kubectl get --namespace kubeless
+minikube dashboard
+```
 
 -----------------------------
-### Run a Simple Function ###
 
-From the command line deploy a simple greeting function.
+## Usage
 
-`cat hello.py`
+### Run a Simple Function
 
-`
-kubeless function deploy greeting --runtime python2.7 --from-file hello.py --handler hello.greeting --trigger-http
-`
+From the command line deploy a simple greeting function defined in the `hello` Python code.
 
-`kubeless function ls`
-							
-See the greeting pod loading in default namespace in the Kubernetes dashboard.
+``` sh
+kubeless function deploy greeting --runtime python2.7 --from-file hello.py --handler hello.greeting
+```
+
+See the greeting service and pod in the default namespace.
+
+``` sh
+kubectl get customresourcedefinition
+kubectl get functions
+kubectl get all
+```
+
+See the greeting pod and service in default namespace in the Kubernetes dashboard.
+
+Invoke the greeting with
+
+``` sh
+kubeless function call greeting --data "G'day to the No Fluff Just Stuff community."
+```
+
+or
+
+``` sh
+kubectl proxy -p 8080 &
+curl -L localhost:8080/api/v1/proxy/namespaces/default/services/greeting:http-function-port
+```
 
 See the function in the Kubeless UI:
 
-`
+``` sh
 minikube service -n kubeless ui
-`
+```
 
-Invoke the function in the UI or command line:
+Note: There are a few defects in the Kubeless UI where a function deployed from CLI cannot be modified in the UI. The pod starts with a failure. It's best to use the command line.
 
-`
-kubeless function call greeting
-`
+-----------------------------
 
-Note: There is a defect in Kubeless where a function deployed from CLI cannot be 
-modified in the UI. The pod starts with a failure. For these steps create a new function in the UI.
-- In the UI modify the function and notice the function instantly changes without redeployment.
-- Next, mess with the pod and add to the NodeJS script `process.exit()`. Notice how Kubernetes manages the 
-fault with its resilience features.
+### Invoke a Nodejs Function
 
+Roadmap: Submitting this function like this does not work, thought it would.
 
+``` sh
+kubectl create -f function.yaml
+curl -L localhost:8080/api/v1/proxy/namespaces/default/services/function:http-function-port
 
-----------------------------------------
-### Using a topic Trigger with Kafka ###
-`cat kafka.py`
+kubectl create -f function1.yaml
+curl -L localhost:8080/api/v1/proxy/namespaces/default/services/function1:http-function-port
+```
+
+Extra: Add to the NodeJS script `process.exit()` to see how Kubernetes manages
+the fault with its resilience features.
+
+-----------------------------
+
+### Using Topic Trigger with Kafka
+
+Roadmap: Not working with 0.4.0 until a PV is created in Minikube before install. See [Quick Start Kafka example instead](http://kubeless.io/docs/quick-start/)
 
 Deploy the script
-`
-kubeless function deploy kafka --runtime python2.7 --handler kafka.tryKafkaTrigger --from-file kafka.py --trigger-topic test-topic
-`
 
-Create a topic
-`
+``` sh
+kubeless function deploy kafka --runtime python2.7 --handler kafka.tryKafkaTrigger --from-file kafka.py --trigger-topic holiday-greetings
+```
+
+Create a topic (TODO - may not need to do as above may create topic)
+
+``` sh
 kubeless topic create holiday-greetings
-`
+```
 
-Publish come data on the topic
-`
+Publish some data on that topic
+
+``` sh
 kubeless topic publish --topic holiday-greetings --data "Peace to the World!"
-`
+```
 
-Check the kafka pod log in the Kubernetes dashboard to see the echo
+Check the Kafka pod log in the Kubernetes dashboard to see the asynchronous echo.
 
+-----------------------------
 
----------------------------------------------
-### Run a NodeJS Function with Parameters ###
+### Run a NodeJS Function with Parameters
 
-Note: Problems were experienced with getting this to work in v0.2.4, awaiting version after v0.3.0
-https://medium.com/bitnami-perspectives/deploying-a-kubeless-function-using-serverless-templates-2d03f49b70e2
+Roadmap
 
+-----------------------------
+
+## Install Helm Chart for Kubeless
+
+Roadmap:
+There is a public helm chart "incubator/kubeless". Prerequisite: "PV provisioner support in the underlying infrastructure."
+
+helm repo add incubator https://kubernetes-charts-incubator.storage.googleapis.com/
+helm install --namespace kubeless incubator/kubeless --name kubeless

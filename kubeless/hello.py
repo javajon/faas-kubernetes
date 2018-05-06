@@ -1,2 +1,3 @@
-def greeting():
-    return "Well, g'day NoFluffJustStuff community."
+def greeting(event, context):
+  print event
+  return event['data']
