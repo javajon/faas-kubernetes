@@ -1,3 +1,13 @@
+TODO: 
+helm chart
+Address note about bugs in UI
+Add serverless CLI instructions
+Add NodeJS examples
+Is extra directory needed, remove or add instruction section for them
+Review roadmap notes
+autoscaling - add demonstration examples
+Use with Prometheus?
+
 # Kubeless with Kubernetes on Minikube
 
 These best and latest instructions are adopted from the readme in the Kubeless GitHub project [here](https://github.com/kubeless/kubeless).
@@ -9,8 +19,8 @@ These best and latest instructions are adopted from the readme in the Kubeless G
 1. Install [Minikube](https://kubernetes.io/docs/getting-started-guides/minikube/) (or any other Kubernetes cluster)
 1. Install [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/) command line tool for Kubernetes
 1. Install [Helm](https://docs.helm.sh/using_helm/), a package manager for Kubernetes based applications
-1. Start Minikube: `minikube start --kubernetes-version v1.9.4 --cpus 4 --memory 8000 --disk-size 80g -p minikube-kubeless`
-1. Use profile specified above: `minikube profile minikube-kubeless`
+1. Start Minikube: `minikube start --kubernetes-version v1.10.0 --cpus 4 --memory 8000 --disk-size 80g --bootstrapper localkube --profile kubeless`
+1. Use profile specified above: `minikube profile kubeless`
 1. Verify `minikube status` and `kubectl version` run correctly
 1. Initialize Helm with: `helm init`
 
@@ -125,10 +135,26 @@ Roadmap
 
 -----------------------------
 
+### Autoscaling excersize
+
+Roadmap
+
+-----------------------------
+
+### Interact with Kubeless from serverless CLI
+
+Roadmap: See serverless.com
+
+-----------------------------
+
 ## Install Helm Chart for Kubeless
 
 Roadmap:
-There is a public helm chart "incubator/kubeless". Prerequisite: "PV provisioner support in the underlying infrastructure."
+Use the incubating public helm chart "incubator/kubeless". Prerequisite: "PV provisioner support in the underlying infrastructure."
+
+
+helm repo add incubator http://storage.googleapis.com/kubernetes-charts-incubator
+helm install --namespace kafka --name kafka --set global.namespace=kafka incubator/kafka
 
 helm repo add incubator https://kubernetes-charts-incubator.storage.googleapis.com/
-helm install --namespace kubeless incubator/kubeless --name kubeless
+helm install --namespace kubeless --name kubeless --set rbac.create=true --set kafkaTrigger.enabled=true --set ui.enabled=true --set controller.deployment.image.tag=v1.0.0-alpha.4 incubator/kubeless
