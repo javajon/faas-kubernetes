@@ -1,13 +1,3 @@
-TODO: 
-helm chart
-Address note about bugs in UI
-Add serverless CLI instructions
-Add NodeJS examples
-Is extra directory needed, remove or add instruction section for them
-Review roadmap notes
-autoscaling - add demonstration examples
-Use with Prometheus?
-
 # Kubeless with Kubernetes on Minikube
 
 These best and latest instructions are adopted from the readme in the Kubeless GitHub project [here](https://github.com/kubeless/kubeless).
@@ -152,9 +142,20 @@ Roadmap: See serverless.com
 Roadmap:
 Use the incubating public helm chart "incubator/kubeless". Prerequisite: "PV provisioner support in the underlying infrastructure."
 
-
+``` sh
 helm repo add incubator http://storage.googleapis.com/kubernetes-charts-incubator
 helm install --namespace kafka --name kafka --set global.namespace=kafka incubator/kafka
-
 helm repo add incubator https://kubernetes-charts-incubator.storage.googleapis.com/
 helm install --namespace kubeless --name kubeless --set rbac.create=true --set kafkaTrigger.enabled=true --set ui.enabled=true --set controller.deployment.image.tag=v1.0.0-alpha.4 incubator/kubeless
+```
+
+## Future improvement notes
+
+Change to provision with Helm chart
+Address note about problems with UI
+Add serverless.com CLI install and usage instructions
+Add NodeJS examples
+Remove extra directory or add instruction section for them
+Review roadmap notes
+Autoscaling - add demonstration examples
+Use with Prometheus
