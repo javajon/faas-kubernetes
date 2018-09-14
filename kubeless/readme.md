@@ -21,7 +21,8 @@ Install the Kubeless CLI tool. The instructions are found in the "Assets" [here]
 The following script will create a namespace for Kubeless and deploy Kubeless and its handy dashboard to the namespace on your Minikube cluster:
 
 ``` sh
-./deploy.sh
+helm install --name my-kubeless --namespace kubeless incubator/kubeless \
+--set rbac.create=true --set ui.enabled=true
 ```
 
 Explore deployment in dashboard
@@ -95,7 +96,7 @@ the fault with its resilience features.
 
 ### Using Topic Trigger with Kafka
 
-Roadmap: Not working with 0.4.0 until a PV is created in Minikube before install. See [Quick Start Kafka example instead](http://kubeless.io/docs/quick-start/)
+See kubeless chart readme about installing the Kafka chart
 
 Deploy the script
 
