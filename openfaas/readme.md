@@ -11,8 +11,7 @@ Serverless Functions Made Simple for Kubernetes
 1. Install [Minikube](https://kubernetes.io/docs/getting-started-guides/minikube/) (or any other Kubernetes cluster)
 1. Install [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/) command line tool for Kubernetes
 1. Install [Helm](https://docs.helm.sh/using_helm/), a package manager for Kubernetes based applications
-1. Start Minikube: `minikube start --kubernetes-version v1.10.0 --cpus 4 --memory 8000 --disk-size 80g --bootstrapper localkube --profile openfaas`
-1. Use profile specified above: `minikube profile openfaas`
+1. Start Minikube: `minikube start --cpus 4 --memory 8000 --disk-size 80g --profile openfaas`
 1. Verify `minikube status` and `kubectl version` run correctly
 
 ## Install OpenFaaS
@@ -101,7 +100,7 @@ curl $OPENFAAS_URL/function/text-to-speech -d 'No animal has been harmed in this
 To confirm the audio
 `start output.mp3`
 
-More on this function can be found here: https://github.com/rorpage/openfaas-text-to-speech
+More on this function can be [found here](https://github.com/rorpage/openfaas-text-to-speech).
 
 --------------------------------
 
